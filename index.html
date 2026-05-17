@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lifestyle Квиз: Твой стиль продуктивности</title>
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #2D3748;
+            --primary-color: #6C5CE7;
+            --primary-hover: #5B4BCB;
+            --border-color: #E2E8F0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .quiz-container {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 600px;
+            padding: 30px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background-color: var(--border-color);
+            border-radius: 10px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        h2 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+
+        .option-item {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            line-height: 1.4;
+        }
+
+        .option-item:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(108, 92, 231, 0.03);
+            transform: translateY(-1px);
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+            outline: none;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary-color);
+        }
+
+        .result-box {
+            text-align: left;
+        }
+
+        .result-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .result-text {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="start-screen">
+        <h2 style="font-size: 26px; text-align: center;">Какой визуальный стиль раскроет твою продуктивность?</h2>
+        <p style="text-align: center; color: #718096; margin-bottom: 30px; font-size: 16px; line-height: 1.5;">
+            Устали от скучных и серых списков дел? Пройдите минутный тест и узнайте, какая визуальная атмосфера идеально подходит вашему типу мышления.
+        </p>
+        <button class="btn" onclick="startQuiz()">Начать тест</button>
+    </div>
+
+    <div id="question-screen" class="hidden">
+        <div class="progress-bar-container">
+            <div id="progress" class="progress-bar"></div>
+        </div>
+        <h2 id="question-text">Текст вопроса</h2>
+        <ul id="options-container" class="options-list">
+            </ul>
+    </div>
+
+    <div id="lead-screen" class="hidden">
+        <h2>Твой персональный профиль эстетики готов!</h2>
+        <p style="color: #718096; margin-bottom: 20px; line-height: 1.5;">
+            Оставь свой Email, чтобы мгновенно разблокировать результаты расчета и получить обещанный дизайнерский лид-магнит (набор кастомных иконок).
+        </p>
+        <input type="email" id="user-email" class="input-field" placeholder="Введите ваш Email" required>
+        <button class="btn" onclick="showResults()">Получить результаты и бонус</button>
+    </div>
+
+    <div id="result-screen" class="hidden" class="result-box">
+        <div id="result-content"></div>
+        <button class="btn" style="margin-top: 20px;" onclick="location.reload()">Пройти заново</button>
+    </div>
+</div>
+
+<script>
+    // База данных lifestyle-вопросов
+    const quizData = [
+        {
+            question: "Какая цветовая палитра точнее всего описывает твоё идеальное рабочее настроение?",
+            answers: [
+                { text: "Нежная пастель: лавандовый, нежно-розовый и мягкий мятный.", type: "A" },
+                { text: "Неоновый контраст: глубокий фиолетовый, ультрамарин и вспышки кислотного.", type: "B" },
+                { text: "Бескомпромиссный монохром: матовый черный, графитовый и чистый белый.", type: "C" },
+                { text: "Теплый винтаж: уютный шоколадный, бежевый и оттенки крафтовой бумаги.", type: "D" }
+            ]
+        },
+        {
+            question: "Выбери мебель или элемент декора, который ты добавил(а) бы в свою идеальную комнату:",
+            answers: [
+                { text: "Мягкое кресло-мешок, живые растения в горшках и гирлянда с теплым светом.", type: "A" },
+                { text: "Строгий геймерский стол со скрытой светодиодной RGB-подсветкой по контуру.", type: "B" },
+                { text: "Массивный стол из темного матового дерева без единой лишней детали.", type: "C" },
+                { text: "Антикварный секретер, лампа с зеленым плафоном и стопки старых книг.", type: "D" }
+            ]
+        },
+        {
+            question: "Какой музыкальный жанр чаще всего звучит в твоих наушниках во время фокуса?",
+            answers: [
+                { text: "Расслабляющий Lo-Fi Hip-Hop, инди-поп или мягкий акустический фоновый шум.", type: "A" },
+                { text: "Динамичный Synthwave, кибер-техно или атмосферный прогрессив-хаус.", type: "B" },
+                { text: "Глубокий космический эмбиент, неоклассика или чистый коричневый шум.", type: "C" },
+                { text: "Ламповый джаз 50-х годов, блюз или треки на старом виниле.", type: "D" }
+            ]
+        },
+        {
+            question: "Твой идеальный сценарий для вечера долгожданной пятницы — это...",
+            answers: [
+                { text: "Завернуться в плед, включить добрый сериал и пить маршмеллоу-какао.", type: "A" },
+                { text: "Погрузиться в прохождение видеоигры или отправиться на ночную прогулку.", type: "B" },
+                { text: "Прочитать главы полезного бизнес-фикшена и подвести итоги недели в таблицах.", type: "C" },
+                { text: "Прогуляться по букинистическим лавкам и посидеть в полумраке старой кофейни.", type: "D" }
+            ]
+        },
+        {
+            question: "Какое освещение помогает тебе поймать состояние максимальной концентрации?",
+            answers: [
+                { text: "Мягкий рассеянный дневной свет из окна, пробивающийся сквозь легкие шторы.", type: "A" },
+                { text: "Полный полумрак в комнате, разбавленный неоновыми лампами.", type: "B" },
+                { text: "Яркий, чистый и равномерный холодный свет, как в современных офисах.", type: "C" },
+                { text: "Локальный приглушенный теплый свет от настольной ретро-лампы.", type: "D" }
+            ]
+        },
+        {
+            question: "На каком носителе тебе подсознательно приятнее оставлять быстрые мысли?",
+            answers: [
+                { text: "На аккуратных цветных стикерах пастельных оттенков.", type: "A" },
+                { text: "В продвинутом текстовом редакторе со стильными кастомными шрифтами.", type: "B" },
+                { text: "В строгом электронном блокноте с четкой цифровой иерархией папок и тегов.", type: "C" },
+                { text: "Перьевой ручкой на полях или на плотных страницах крафт-блокнота.", type: "D" }
+            ]
+        }
+    ];
+
+    // Описания стилей для финала
+    const resultsData = {
+        A: {
+            title: "Твой стиль: «Пастельный уют» (Эстетика Pinterest & Cozy Bujo)",
+            text: "Твоя атмосфера — это творческое спокойствие, вдохновение и мягкий темп. Тебе важно, чтобы списки дел приносили эстетическое удовольствие.<br><br><strong>Решение в приложении:</strong> Хватит терпеть стандартные жесткие рамки! В нашем персонализированном планировщике задач ты можешь создать свой идеальный «цифровой дом». Загружай нежные лавандовые фоны, выбирай округлые виджеты, настраивай маркеры задач в виде милых наклеек и превращай планирование в удовольствие. <b>Все эти функции уже встроены в наше приложение!</b>"
+        },
+        B: {
+            title: "Твой стиль: «Неоновый динамизм» (Эстетика Cyberpunk & Tech)",
+            text: "Твоя атмосфера — высокая скорость, современные технологии, ночной мегаполис и геймификация. Продуктивность для тебя — это увлекательный квест.<br><br><strong>Решение в приложении:</strong> Забудь про скучные таблицы! Наш мобильный планировщик дает полную свободу для сборки интерфейса с нуля. Настрой глубокую темную тему, активируй неоновые маркеры задач, выбери яркие кастомные шрифты и наблюдай, как твои цели превращаются в стильный интерактивный пульт управления жизнью. <b>Этот интерфейс доступен в нашем приложении!</b>"
+        },
+        C: {
+            title: "Твой стиль: «Бизнес-минимализм» (Strict Monochrome & Slate)",
+            text: "Твоя атмосфера — строгая логика, абсолютный порядок, лаконичность и фокус на главном. Тебя раздражает визуальный шум и лишние детали.<br><br><strong>Решение в приложении:</strong> Мы ценим твое стремление к чистоте пространства. В нашем кастомизируемом приложении ты сможешь убрать абсолютно все лишние элементы. Настрой монохромный дизайн (матовый черный, графит и белый), выбери строгие тонкие шрифты и создай лаконичные виджеты, которые помогут удерживать фокус. <b>Собери свой минималистичный планер у нас!</b>"
+        },
+        D: {
+            title: "Твой стиль: «Ретро-винтаж» (Dark Academia & Kraft)",
+            text: "Твоя атмосфера — ностальгия, любовь к классике, эстетика старинных библиотек и текстура плотной бумаги. Тебе часто не хватает ламповости в цифровую эпоху.<br><br><strong>Решение в приложении:</strong> Мы объединили классику и цифровое удобство. В нашем планировщике ты можешь полностью воссоздать дух любимого бумажного ежедневника. Выбирай теплые крафтовые и сепия-текстуры для фона, настраивай каллиграфические шрифты и создавай уникальные шаблоны разворотов, которые вернут ощущение ведения настоящего уютного блокнота на твоем смартфоне. <b>Попробуй эту тему в нашем приложении!</b>"
+        }
+    };
+
+    let currentQuestionIndex = 0;
+    let scores = { A: 0, B: 0, C: 0, D: 0 };
+
+    function startQuiz() {
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('question-screen').classList.remove('hidden');
+        showQuestion();
+    }
+
+    function showQuestion() {
+        const currentQuestion = quizData[currentQuestionIndex];
+        document.getElementById('question-text').innerText = currentQuestion.question;
+        
+        // Обновление прогресс-бара
+        const progressPercent = (currentQuestionIndex / quizData.length) * 100;
+        document.getElementById('progress').style.width = progressPercent + '%';
+
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+
+        currentQuestion.answers.forEach(answer => {
+            const li = document.createElement('li');
+            li.classList.add('option-item');
+            li.innerText = answer.text;
+            li.onclick = () => selectAnswer(answer.type);
+            optionsContainer.appendChild(li);
+        });
+    }
+
+    function selectAnswer(type) {
+        scores[type]++;
+        currentQuestionIndex++;
+
+        if (currentQuestionIndex < quizData.length) {
+            showQuestion();
+        } else {
+            document.getElementById('question-screen').classList.add('hidden');
+            document.getElementById('lead-screen').classList.remove('hidden');
+        }
+    }
+
+    function showResults() {
+        const emailInput = document.getElementById('user-email');
+        if (!emailInput.value.includes('@')) {
+            alert('Пожалуйста, введите корректный Email для получения бонуса.');
+            return;
+        }
+
+        document.getElementById('lead-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+
+        // Вычисление преобладающего типа
+        let maxType = 'A';
+        let maxScore = -1;
+
+        for (const type in scores) {
+            if (scores[type] > maxScore) {
+                maxScore = scores[type];
+                maxType = type;
+            }
+        }
+
+        const result = resultsData[maxType];
+        const resultContent = document.getElementById('result-content');
+        
+        resultContent.innerHTML = `
+            <div class="result-title">${result.title}</div>
+            <div class="result-text">${result.text}</div>
+            <div style="background-color: rgba(108, 92, 231, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid var(--primary-color); font-size: 14px;">
+                🎉 <strong>Бонус отправлен на ${emailInput.value}!</strong> Ищи в инбоксе ссылку на скачивание эксклюзивного пака иконок.
+            </div>
+        `;
+    }
+</script>
+
+</body>
+</html>
